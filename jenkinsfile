@@ -1,0 +1,43 @@
+node
+{
+ 
+ def mavenHome = tool name: "maven3.8.1"
+ 
+ properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), pipelineTriggers([pollSCM('* * * * *')])])
+ 
+    stage('checkout')
+    {
+        git branch: 'development', credentialsId: 'c9eec572-fd8a-4d2c-9cc9-a34b89fbf070', url: 'https://github.com/sr-ec-projectapps/maven-web-application.git'
+    }
+    
+    stage('build')
+    {
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    /*
+     stage('executesonarqubereport')
+    {
+        sh "${mavenHome}/bin/mvn clean package sonar:sonar"
+    }
+    
+    stage('uoloadArtfactsintoNexus')
+    {
+        sh "${mavenHome}/bin/mvn deploy"
+    }
+    
+     stage('deployappintotomcatserver')
+    {
+        sshagent(['20130412-2800-461e-a7e7-8db8ea52dfbd']) {
+    sh "scp -o StrictHostkeyChecking target/maven-web-application.war ec2-user@43.204.145.182:/opt/apache-tomcat-9.0.62/webapps/"
+}
+*/
+stage('sendemailnotification')
+    {
+        emailext body: '''Buildover..
+
+regards..
+pipelineproject
+8332032956''', subject: 'Buildover...', to: 'sureshbabupinninti61@gmail.com'
+}
+    }
+}
